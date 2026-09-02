@@ -1,0 +1,16 @@
+# Runtime / local dev artifacts (see environment/.gitignore for details)
+environment/node_modules/
+environment/distribution-gateway/node_modules/
+environment/releases.duckdb
+environment/*.duckdb
+environment/*.duckdb.wal
+environment/keys/
+environment/distribution-gateway/data/*.json
+environment/distribution-gateway/data/*.db
+!environment/distribution-gateway/data/.gitkeep
+environment/reports/publications.actual.txt
+
+# Logs and OS noise
+*.log
+npm-debug.log*
+.DS_Store
