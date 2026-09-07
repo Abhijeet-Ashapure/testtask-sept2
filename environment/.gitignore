@@ -1,6 +1,10 @@
 # Node dependencies
 node_modules/
 
+# Candidate/oracle deliverable must not ship inside environment/ (lives in solution/)
+publisher/release-publisher.mjs
+publisher/
+
 # DuckDB database files and write-ahead logs
 releases.duckdb
 *.duckdb

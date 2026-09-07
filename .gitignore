@@ -5,6 +5,7 @@ environment/releases.duckdb
 environment/*.duckdb
 environment/*.duckdb.wal
 environment/keys/
+environment/publisher/release-publisher.mjs
 environment/distribution-gateway/data/*.json
 environment/distribution-gateway/data/*.db
 !environment/distribution-gateway/data/.gitkeep
@@ -14,3 +15,4 @@ environment/reports/publications.actual.txt
 *.log
 npm-debug.log*
 .DS_Store
+/logs/

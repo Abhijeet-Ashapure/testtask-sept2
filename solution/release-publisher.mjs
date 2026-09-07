@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+/**
+ * Reference firmware release publisher.
+ * Installed into /app/publisher/release-publisher.mjs by solution/publish.sh.
+ */
 
 import duckdb from 'duckdb';
 import { execFileSync } from 'node:child_process';
@@ -12,8 +16,12 @@ const APP_ROOT = path.resolve(__dirname, '..');
 const MANIFEST_PATH = path.join(APP_ROOT, 'fixtures', 'build_manifest.csv');
 const DB_PATH = path.join(APP_ROOT, 'releases.duckdb');
 const GATEWAY_BASE = process.env.GATEWAY_URL || 'http://127.0.0.1:7070';
-const CURRENT_CERT = process.env.CURRENT_CERT_PATH || path.join(APP_ROOT, 'keys', 'current', 'current.cert.pem');
-const CURRENT_KEY = process.env.CURRENT_KEY_PATH || path.join(APP_ROOT, 'keys', 'current', 'current.key.pem');
+const CURRENT_CERT =
+  process.env.CURRENT_CERT_PATH ||
+  path.join(APP_ROOT, 'keys', 'current', 'current.cert.pem');
+const CURRENT_KEY =
+  process.env.CURRENT_KEY_PATH ||
+  path.join(APP_ROOT, 'keys', 'current', 'current.key.pem');
 
 function runQuery(db, sql) {
   return new Promise((resolve, reject) => {
@@ -55,11 +63,16 @@ function signDescriptor(descriptor) {
     return execFileSync(
       'openssl',
       [
-        'cms', '-sign',
-        '-in', descriptorFile,
-        '-signer', CURRENT_CERT,
-        '-inkey', CURRENT_KEY,
-        '-outform', 'PEM',
+        'cms',
+        '-sign',
+        '-in',
+        descriptorFile,
+        '-signer',
+        CURRENT_CERT,
+        '-inkey',
+        CURRENT_KEY,
+        '-outform',
+        'PEM',
         '-binary',
       ],
       { encoding: 'utf8' },
@@ -90,7 +103,7 @@ async function loadAndReconcile(db) {
      FROM read_csv('${csvPath}', header=true, auto_detect=true)`,
   );
 
-  const bundles = await runQuery(
+  return runQuery(
     db,
     `SELECT
        bundle_id,
@@ -108,8 +121,6 @@ async function loadAndReconcile(db) {
      GROUP BY bundle_id
      ORDER BY bundle_id`,
   );
-
-  return bundles;
 }
 
 async function getStoredPublication(db, bundleId) {
@@ -147,7 +158,11 @@ async function submitPublication(descriptor, signature, requestToken) {
   const res = await fetch(`${GATEWAY_BASE}/v1/publications`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ descriptor, signature, request_token: requestToken }),
+    body: JSON.stringify({
+      descriptor,
+      signature,
+      request_token: requestToken,
+    }),
   });
   const body = await res.json();
   if (!res.ok) {
@@ -157,14 +172,17 @@ async function submitPublication(descriptor, signature, requestToken) {
 }
 
 async function publishBundle(db, bundle, keyId) {
-  const { bundle_id: bundleId, artifact_count: artifactCount, total_bytes: totalBytes } = bundle;
+  const {
+    bundle_id: bundleId,
+    artifact_count: artifactCount,
+    total_bytes: totalBytes,
+  } = bundle;
   const requestToken = `token-${bundleId}`;
-  const descriptorObj = {
+  const descriptor = canonicalEncode({
     artifact_count: artifactCount,
     bundle_id: bundleId,
     total_bytes: Number(totalBytes),
-  };
-  const descriptor = canonicalEncode(descriptorObj);
+  });
 
   console.log(`BUNDLE ${bundleId} SIGNED KEY=${keyId}`);
 
@@ -178,8 +196,13 @@ async function publishBundle(db, bundle, keyId) {
 
   const signature = signDescriptor(descriptor);
   const receipt = await submitPublication(descriptor, signature, requestToken);
-
-  await storePublication(db, bundleId, receipt.request_token, receipt.publication_id, descriptor);
+  await storePublication(
+    db,
+    bundleId,
+    receipt.request_token,
+    receipt.publication_id,
+    descriptor,
+  );
 
   console.log(
     `BUNDLE ${bundleId} PUBLISHED RECEIPT=${receipt.publication_id} TOKEN=${receipt.request_token} STATUS=PUBLISHED`,
@@ -187,8 +210,7 @@ async function publishBundle(db, bundle, keyId) {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-  if (!args.includes('--report')) {
+  if (!process.argv.slice(2).includes('--report')) {
     console.error('Usage: node publisher/release-publisher.mjs --report');
     process.exit(1);
   }

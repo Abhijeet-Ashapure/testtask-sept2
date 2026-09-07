@@ -49,7 +49,8 @@ treasury / settlement-payout domain).
 | Verifier entry + reward | `tests/test.sh` → `/logs/verifier/reward.txt` (binary 0/1) |
 | Verifier assertions | `tests/test_outputs.py` (pytest) |
 | Service self-tests | `distribution-gateway/tests/publications.test.js` (node --test) |
-| Solution entry point (stub only) | `solution/publish.sh` (no real solution inside) |
+| Solution entry point | `solution/publish.sh` installs `solution/release-publisher.mjs` into `/app/publisher/` |
+
 
 ## Difficulty devices carried over (described abstractly)
 
@@ -83,6 +84,6 @@ treasury / settlement-payout domain).
   step count and shape, the difficulty devices above, and the verification style
   (background service + pytest + golden diff + independent recomputation + binary
   reward).
-- **Not included:** no reference solution. `solution/publish.sh` is a stub that
-  exits 0, matching the source's stub; the real solution is handled separately by
-  the human grader.
+- **Not included in environment/:** the publisher implementation. It lives only
+  under `solution/` and is installed by `solution/publish.sh` for the oracle run.
+  The empty environment must not contain `publisher/release-publisher.mjs`.
