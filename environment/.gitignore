@@ -1,9 +1,11 @@
 # Node dependencies
 node_modules/
 
-# Candidate/oracle deliverable must not ship inside environment/ (lives in solution/)
+# Candidate/oracle deliverable must not ship inside environment/ (lives in solution/).
+# Keep the empty publisher/ directory (with .gitkeep) so Docker COPY / agent paths work.
 publisher/release-publisher.mjs
-publisher/
+!publisher/
+!publisher/.gitkeep
 
 # DuckDB database files and write-ahead logs
 releases.duckdb

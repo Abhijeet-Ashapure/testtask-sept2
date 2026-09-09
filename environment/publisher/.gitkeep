@@ -1,0 +1,2 @@
+# Empty deliverable directory. The agent/oracle writes release-publisher.mjs here.
+# Do not commit the implementation under environment/ — it lives in solution/.

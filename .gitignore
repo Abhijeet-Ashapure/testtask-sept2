@@ -6,6 +6,8 @@ environment/*.duckdb
 environment/*.duckdb.wal
 environment/keys/
 environment/publisher/release-publisher.mjs
+!environment/publisher/
+!environment/publisher/.gitkeep
 environment/distribution-gateway/data/*.json
 environment/distribution-gateway/data/*.db
 !environment/distribution-gateway/data/.gitkeep

@@ -74,6 +74,12 @@ COPY distribution-gateway/ /app/distribution-gateway/
 COPY fixtures/build_manifest.csv /app/fixtures/build_manifest.csv
 COPY reports/publications.expected.txt /app/reports/publications.expected.txt
 
+# Empty publisher/ directory for the agent/oracle deliverable. The implementation
+# file is NOT shipped here — solution/publish.sh (or the agent) writes
+# release-publisher.mjs into this path at runtime.
+COPY publisher/ /app/publisher/
+RUN rm -f /app/publisher/release-publisher.mjs
+
 # The verifier launches the gateway in the background and drives it over
 # localhost; there is no CMD that starts it. A default interactive shell suffices.
 CMD ["/bin/bash"]
